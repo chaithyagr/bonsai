@@ -1,6 +1,6 @@
 .SUFFIXES: .cu
 
-NVCC = /usr/local/cuda-5.5/bin/nvcc -g -use_fast_math -arch=sm_35 -rdc=true
+NVCC = nvcc -g -use_fast_math -arch=sm_52 -rdc=true
 LFLAGS = -lcudadevrt
 LFLAGS += -DMASS # Use all positive sources
 
@@ -17,7 +17,5 @@ serial: $(OBJ)
 	$(NVCC) -c $< $(LFLAGS)
 
 clean:
-	rm -f serial.o
+	rm -f *.o *.out *.dat
 
-cleanall:
-	rm -f *.o *.out

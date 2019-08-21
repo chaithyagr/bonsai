@@ -7,7 +7,7 @@
 
 int main(int argc, char ** argv) {
 #if MASS
-  const int numBodies = (1 << 24) - 1;
+  const int numBodies = (1 << 19) - 1;
   const int images = 0;
   const float theta = 0.75;
 #else
