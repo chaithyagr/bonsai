@@ -1,9 +1,0 @@
-/home/chaithyagr/clion-2019.2/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/chaithyagr/Codes/CLionProjects/bonsai-1
-CMake Error at /home/chaithyagr/clion-2019.2/bin/cmake/linux/share/cmake-3.14/Modules/FindCUDA.cmake:700 (message):
-  Specify CUDA_TOOLKIT_ROOT_DIR
-Call Stack (most recent call first):
-  CMakeLists.txt:8 (find_package)
-
-
--- Configuring incomplete, errors occurred!
-See also "/home/chaithyagr/Codes/CLionProjects/bonsai-1/cmake-build-debug/CMakeFiles/CMakeOutput.log".

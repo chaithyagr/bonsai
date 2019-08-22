@@ -16,7 +16,8 @@ void print_random_data(const char *string, T pos, int num, int n)
           printf("%s : Data %d %d : %lf %lf %lf %lf\n",string,i, idx, pos[idx][0], pos[idx][1], pos[idx][2], pos[idx][3]);
       }
   }
-int do_stuff() {
+
+void test_all() {
   const int numBodies = (1 << 19) - 1;
   const int images = 0;
   const float theta = 0.05;
@@ -96,5 +97,4 @@ int do_stuff() {
   fprintf(stdout,"Bodies               : %d\n",numBodies);
   fprintf(stdout,"Cells                : %d\n",numSources);
   fprintf(stdout,"Tree depth           : %d\n",numLevels);
-  return 0;
 }
