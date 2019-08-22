@@ -47,28 +47,30 @@ private:
           printf("Data %d : %lf %lf %lf %lf\n", idx, pos[idx][0], pos[idx][1], pos[idx][2], pos[idx][3]);
       }
   }
-
 public:
   std::vector<fvec4> pos;
-  Dataset(unsigned long _n) : n(_n), pos(_n) {
-    unsigned long i = 0;
-    const float scale = 3.0 * M_PI / 16.0;
-    while (i < n) {
-      float R = 1.0 / sqrt( (pow(drand48(), -2.0 / 3.0) - 1.0) );
-      if (R < 100.0) {
-	float Z = (1.0 - 2.0 * drand48()) * R;
-        float theta = 2.0 * M_PI * drand48();
-	float X = sqrt(R * R - Z * Z) * cos(theta);
-	float Y = sqrt(R * R - Z * Z) * sin(theta);
-	X *= scale; Y *= scale; Z *= scale;
-	pos[i][0] = ((float) abs(rand()) / (RAND_MAX)) + 1;
-	pos[i][1] = ((float) abs(rand()) / (RAND_MAX)) + 1;
-	pos[i][2] = ((float) abs(rand()) / (RAND_MAX)) + 1;
-	pos[i][3] = ((float) abs(rand()) / (RAND_MAX)) + 1;
-	printDots(i);
-	i++;
+  Dataset(unsigned long _n) : n(_n), pos(_n)
+  {
+      //Random Initialization
+      unsigned long i = 0;
+      while (i < n)
+      {
+          pos[i][0] = ((float) rand() / (RAND_MAX)) + 1;
+          pos[i][1] = ((float) rand() / (RAND_MAX)) + 1;
+          pos[i][2] = ((float) rand() / (RAND_MAX)) + 1;
+          pos[i][3] = ((float) abs(rand()) / (RAND_MAX)) + 1;
+          printDots(i);
+          i++;
       }
-    }
-    print_random_data(100);
+  }
+  Dataset(unsigned long _n, float *points, float *weights) : n(_n), pos(_n)
+  {
+      //Initialize with right data
+      for(int i=0;i<n;++i)
+      {
+          for(int j=0;j<3;++j)
+              pos[i][j] = points[i+n*j];
+          pos[i][3] = weights[i];
+      }
   }
 };

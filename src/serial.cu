@@ -98,3 +98,63 @@ void test_all() {
   fprintf(stdout,"Cells                : %d\n",numSources);
   fprintf(stdout,"Tree depth           : %d\n",numLevels);
 }
+
+int get_pots(int numBodies, float *pots, float *points, float *weights, bool dodebug=0)
+{
+    const Dataset data(numBodies, points, weights);
+    const int images = 0;
+    const float theta = 0.05;
+    const float eps = 0.05;
+    const int ncrit = 64;
+    const float cycle = 2 * M_PI;
+    if(dodebug)
+        print_random_data("Input Data", data.pos, 10, numBodies);
+    cudaVec<fvec4> bodyPos(numBodies,true);
+    cudaVec<fvec4> bodyPos2(numBodies);
+    cudaVec<fvec4> bodyAcc(numBodies,true);
+    cudaVec<fvec4> bodyAcc2(numBodies,true);
+    for (int i=0; i<numBodies; i++) {
+        bodyPos[i][0] = data.pos[i][0];
+        bodyPos[i][1] = data.pos[i][1];
+        bodyPos[i][2] = data.pos[i][2];
+        bodyPos[i][3] = data.pos[i][3];}
+    bodyPos.h2d();
+    bodyAcc.h2d();
+
+    fprintf(stdout,"--- FMM Profiling ----------------\n");
+    double t0 = get_time();
+    Build build;
+    Box box;
+    cudaVec<int2> levelRange(32,true);
+    cudaVec<CellData> sourceCells(numBodies);
+    int3 counts = build.tree<ncrit>(bodyPos, bodyPos2, box, levelRange, sourceCells);
+    int numLevels = counts.x;
+    int numSources = counts.y;
+    int numLeafs = counts.z;
+    cudaVec<int2> targetRange(numBodies);
+    cudaVec<fvec4> sourceCenter(numSources);
+    cudaVec<fvec4> Multipole(NVEC4*numSources);
+    Group group;
+    int numTargets = group.targets(bodyPos, bodyPos2, box, targetRange, 5);
+    Pass pass;
+    pass.upward(numLeafs, numLevels, theta, levelRange, bodyPos, sourceCells, sourceCenter, Multipole);
+    Traversal traversal;
+    double dt = get_time() - t0;
+    const int numTarget = min(512,numBodies); // Number of threads per block will be set to this value
+    const int numBlock = min(128,(numBodies-1)/numTarget+1);
+    t0 = get_time();
+    traversal.direct(numTarget, numBlock, images, eps, cycle, bodyPos2, bodyAcc2);
+    dt = get_time() - t0;
+    bodyAcc.d2h();
+    bodyAcc2.d2h();
+    for (int i=0; i<numTarget; i++)
+    {
+        fvec4 bodyAcc = bodyAcc2[i];
+        for (int j=1; j<numBlock; j++)
+        {
+            bodyAcc += bodyAcc2[i+numTarget*j];
+        }
+        bodyAcc2[i] = bodyAcc;
+    }
+    return 0;
+}
