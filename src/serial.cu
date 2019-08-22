@@ -1,3 +1,4 @@
+#include "serial.h"
 #include "types.h"
 #include "buildtree.h"
 #include "dataset.h"
@@ -15,16 +16,10 @@ void print_random_data(const char *string, T pos, int num, int n)
           printf("%s : Data %d %d : %lf %lf %lf %lf\n",string,i, idx, pos[idx][0], pos[idx][1], pos[idx][2], pos[idx][3]);
       }
   }
-int main(int argc, char ** argv) {
-#if MASS
+int do_stuff() {
   const int numBodies = (1 << 19) - 1;
   const int images = 0;
   const float theta = 0.05;
-#else
-  const int numBodies = (1 << 20) - 1;
-  const int images = 1;
-  const float theta = 0.5;
-#endif
   const float eps = 0.05;
   const int ncrit = 64;
   const float cycle = 2 * M_PI;

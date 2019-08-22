@@ -7,12 +7,15 @@ find_package(PythonLibs 3.5 REQUIRED)
 set(CUDA_SEPARABLE_COMPILATION ON)
 find_package(CUDA REQUIRED)
 
-FILE(GLOB sources *.c*)
+add_subdirectory(pybind11)
+
+FILE(GLOB sources src/*.cu)
 
 include_directories(${CUDA_INCLUDE_DIRS})
 include_directories(include/)
 set(CMAKE_CXX_FLAGS "-std=c++11 -fPIC")
 set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -arch=sm_52 --use_fast_math -rdc=true -g -lcudadevrt)
 link_directories(${CUDA_TOOLKIT_ROOT_DIR}/lib64)
-cuda_add_executable(fmm ${sources})
-target_link_libraries(fmm ${CUDA_LIBRARIES} -lcudadevrt)
+cuda_add_library(serial ${sources})
+pybind11_add_module(fmm src/bonsai_python.cpp)
+target_link_libraries(fmm PRIVATE serial ${CUDA_LIBRARIES} -lcudadevrt)
