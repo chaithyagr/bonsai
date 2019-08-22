@@ -17,12 +17,19 @@ void print_random_data(const char *string, T pos, int num, int n)
       }
   }
 
+template < class T>
+void print_upto_n(const char * string, T pos, int num)
+{
+    for(int i = 0 ; i<num;++i)
+        printf("%s : Body %d : %f\n", string, i, pos[i][0]);
+}
+
 void test_all() {
-  const int numBodies = (1 << 19) - 1;
+  const int numBodies = (1 << 21) - 1;
   const int images = 0;
   const float theta = 0.05;
   const float eps = 0.05;
-  const int ncrit = 64;
+  const int ncrit =1024;
   const float cycle = 2 * M_PI;
 
   fprintf(stdout,"--- FMM Parameters ---------------\n");
@@ -59,6 +66,7 @@ void test_all() {
   cudaVec<fvec4> sourceCenter(numSources);
   cudaVec<fvec4> Multipole(NVEC4*numSources);
   Group group;
+
   int numTargets = group.targets(bodyPos, bodyPos2, box, targetRange, 5);
   Pass pass;
   pass.upward(numLeafs, numLevels, theta, levelRange, bodyPos, sourceCells, sourceCenter, Multipole);
@@ -112,7 +120,7 @@ int get_pots(int numBodies, float theta, float *pots, float *points, float *weig
 {
     const int images = 0;
     const float eps = 0.05;
-    const int ncrit = 1024;
+    const int ncrit = 32;
     const float cycle = 2 * M_PI;
     const Dataset data(numBodies, points, weights);
 
@@ -164,5 +172,8 @@ int get_pots(int numBodies, float theta, float *pots, float *points, float *weig
     bodyAcc.d2h();
     for(int i=0;i<numBodies;++i)
         pots[i] = bodyAcc[i][0];
+    fprintf(stdout,"Bodies               : %d\n",numBodies);
+    fprintf(stdout,"Cells                : %d\n",numSources);
+    fprintf(stdout,"Tree depth           : %d\n",numLevels);
     return 0;
 }

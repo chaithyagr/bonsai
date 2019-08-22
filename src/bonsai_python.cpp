@@ -1,8 +1,8 @@
-#include "serial.h"
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "serial.h"
 #define TYPE float
 namespace py = pybind11;
 
@@ -27,7 +27,7 @@ py::array_t<TYPE, py::array::c_style | py::array::forcecast> bonsai_pybind(py::s
     return output;
 }
 
-PYBIND11_MODULE(fmm, m)
+PYBIND11_MODULE(fmm_gpu, m)
 {
     m.doc() = "Test Run for comparision with C++ run";
     m.def("test", &test, py::return_value_policy::take_ownership);

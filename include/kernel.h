@@ -389,6 +389,7 @@ namespace {
     M[0] = 1;
     Kernels<0,0,P-1>::M2P(acc,invRN,dX,M);
     M[0] = M0;
+    printf("Acc[0] : %f invR : %f invRN : %f invR2 : %f R2 : %f DX : %f\n",acc[0],invR,invRN,invR2,R2,dX);
     return acc;
   }
 }

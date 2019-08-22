@@ -11,10 +11,10 @@ add_subdirectory(pybind11)
 
 FILE(GLOB sources src/*.cu)
 
-include_directories(${CUDA_INCLUDE_DIRS})
+include_directories(${CUDA_INCLUDE_DIRS} ${CUDA_ROOT_DIR}/samples/common/inc)
 include_directories(include/)
 set(CMAKE_CXX_FLAGS "-std=c++11 -fPIC")
-set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -arch=sm_52 --use_fast_math -rdc=true -g -lcudadevrt)
+set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -arch=sm_52 --use_fast_math -rdc=true -g -lcudadevrt -ftz=true)
 link_directories(${CUDA_TOOLKIT_ROOT_DIR}/lib64)
 cuda_add_library(serial ${sources})
 pybind11_add_module(fmm src/bonsai_python.cpp)
