@@ -63,12 +63,21 @@ void test_all() {
   Pass pass;
   pass.upward(numLeafs, numLevels, theta, levelRange, bodyPos, sourceCells, sourceCenter, Multipole);
   Traversal traversal;
+  const fvec4 interactions = traversal.approx(numTargets, images, eps, cycle,
+					      bodyPos, bodyPos2, bodyAcc,
+					      targetRange, sourceCells, sourceCenter,
+					      Multipole, levelRange);
   double dt = get_time() - t0;
+  float flops = (interactions[0] * 20 + interactions[2] * 2 * pow(P,3)) * numBodies / dt / 1e12;
+  fprintf(stdout,"--- Total runtime ----------------\n");
+  fprintf(stdout,"Total FMM            : %.7f s (%.7f TFlops)\n",dt,flops);
   const int numTarget = min(512,numBodies); // Number of threads per block will be set to this value
   const int numBlock = min(128,(numBodies-1)/numTarget+1);
   t0 = get_time();
   traversal.direct(numTarget, numBlock, images, eps, cycle, bodyPos2, bodyAcc2);
   dt = get_time() - t0;
+  flops = 35. * numTarget * numBodies * powf(2*images+1,3) / dt / 1e12;
+  fprintf(stdout,"Total Direct         : %.7f s (%.7f TFlops)\n",dt,flops);
   bodyAcc.d2h();
   bodyAcc2.d2h();
   for (int i=0; i<numTarget; i++) {
@@ -99,25 +108,30 @@ void test_all() {
   fprintf(stdout,"Tree depth           : %d\n",numLevels);
 }
 
-int get_pots(int numBodies, float *pots, float *points, float *weights, bool dodebug=0)
+int get_pots(int numBodies, float theta, float *pots, float *points, float *weights, bool dodebug=0)
 {
-    const Dataset data(numBodies, points, weights);
     const int images = 0;
-    const float theta = 0.05;
     const float eps = 0.05;
-    const int ncrit = 64;
+    const int ncrit = 1024;
     const float cycle = 2 * M_PI;
-    if(dodebug)
-        print_random_data("Input Data", data.pos, 10, numBodies);
+    const Dataset data(numBodies, points, weights);
+
+    fprintf(stdout,"--- FMM Parameters ---------------\n");
+    fprintf(stdout,"numBodies            : %d\n",numBodies);
+    fprintf(stdout,"P                    : %d\n",P);
+    fprintf(stdout,"theta                : %f\n",theta);
+    fprintf(stdout,"ncrit                : %d\n",ncrit);
+
     cudaVec<fvec4> bodyPos(numBodies,true);
     cudaVec<fvec4> bodyPos2(numBodies);
     cudaVec<fvec4> bodyAcc(numBodies,true);
     cudaVec<fvec4> bodyAcc2(numBodies,true);
     for (int i=0; i<numBodies; i++) {
-        bodyPos[i][0] = data.pos[i][0];
-        bodyPos[i][1] = data.pos[i][1];
-        bodyPos[i][2] = data.pos[i][2];
-        bodyPos[i][3] = data.pos[i][3];}
+      bodyPos[i][0] = data.pos[i][0];
+      bodyPos[i][1] = data.pos[i][1];
+      bodyPos[i][2] = data.pos[i][2];
+      bodyPos[i][3] = data.pos[i][3];
+    }
     bodyPos.h2d();
     bodyAcc.h2d();
 
@@ -139,22 +153,16 @@ int get_pots(int numBodies, float *pots, float *points, float *weights, bool dod
     Pass pass;
     pass.upward(numLeafs, numLevels, theta, levelRange, bodyPos, sourceCells, sourceCenter, Multipole);
     Traversal traversal;
+    const fvec4 interactions = traversal.approx(numTargets, images, eps, cycle,
+					      bodyPos, bodyPos2, bodyAcc,
+					      targetRange, sourceCells, sourceCenter,
+					      Multipole, levelRange);
     double dt = get_time() - t0;
-    const int numTarget = min(512,numBodies); // Number of threads per block will be set to this value
-    const int numBlock = min(128,(numBodies-1)/numTarget+1);
-    t0 = get_time();
-    traversal.direct(numTarget, numBlock, images, eps, cycle, bodyPos2, bodyAcc2);
-    dt = get_time() - t0;
+    float flops = (interactions[0] * 20 + interactions[2] * 2 * pow(P,3)) * numBodies / dt / 1e12;
+    fprintf(stdout,"--- Total runtime ----------------\n");
+    fprintf(stdout,"Total FMM            : %.7f s (%.7f TFlops)\n",dt,flops);
     bodyAcc.d2h();
-    bodyAcc2.d2h();
-    for (int i=0; i<numTarget; i++)
-    {
-        fvec4 bodyAcc = bodyAcc2[i];
-        for (int j=1; j<numBlock; j++)
-        {
-            bodyAcc += bodyAcc2[i+numTarget*j];
-        }
-        bodyAcc2[i] = bodyAcc;
-    }
+    for(int i=0;i<numBodies;++i)
+        pots[i] = bodyAcc[i][0];
     return 0;
 }

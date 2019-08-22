@@ -13,24 +13,17 @@ void test()
 }
 py::array_t<TYPE, py::array::c_style | py::array::forcecast> bonsai_pybind(py::size_t num_points,
  py::array_t<TYPE, py::array::c_style | py::array::forcecast> locations,
- py::array_t<TYPE, py::array::c_style | py::array::forcecast> weights, bool dodebug)
+ py::array_t<TYPE, py::array::c_style | py::array::forcecast> weights, float theta, bool dodebug)
 {
     py::buffer_info loc = locations.request();
     TYPE *points = (TYPE *) loc.ptr;
     py::buffer_info wt_buffer = weights.request();
     TYPE *wt = (TYPE *) wt_buffer.ptr;
     // Output Array
-    float *pots;
-    int flag = get_pots(num_points, pots, points, wt, 1);
-
     py::array_t<TYPE, py::array::c_style | py::array::forcecast> output({num_points});
     py::buffer_info out = output.request();
     TYPE *ptrOut = (TYPE *) out.ptr;
-    for(int l = 0 ; l < num_points ; l++)
-    {
-        ptrOut[l] = 0;
-        //TODO
-    }
+    int flag = get_pots(num_points, theta, ptrOut, points, wt, 1);
     return output;
 }
 
