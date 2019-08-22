@@ -5,11 +5,21 @@
 #include "traversal.h"
 #include "upwardpass.h"
 
+template < class T>
+void print_random_data(const char *string, T pos, int num, int n)
+  {
+      int idx = 0;
+      for(int i=0;i<num;++i)
+      {
+          idx = rand() % n;
+          printf("%s : Data %d %d : %lf %lf %lf %lf\n",string,i, idx, pos[idx][0], pos[idx][1], pos[idx][2], pos[idx][3]);
+      }
+  }
 int main(int argc, char ** argv) {
 #if MASS
   const int numBodies = (1 << 19) - 1;
   const int images = 0;
-  const float theta = 0.75;
+  const float theta = 0.05;
 #else
   const int numBodies = (1 << 20) - 1;
   const int images = 1;
@@ -35,7 +45,7 @@ int main(int argc, char ** argv) {
     bodyPos[i][1] = data.pos[i][1];
     bodyPos[i][2] = data.pos[i][2];
     bodyPos[i][3] = data.pos[i][3];
-  }
+ }
   bodyPos.h2d();
   bodyAcc.h2d();
 
@@ -57,24 +67,14 @@ int main(int argc, char ** argv) {
   Pass pass;
   pass.upward(numLeafs, numLevels, theta, levelRange, bodyPos, sourceCells, sourceCenter, Multipole);
   Traversal traversal;
-  const fvec4 interactions = traversal.approx(numTargets, images, eps, cycle,
-					      bodyPos, bodyPos2, bodyAcc,
-					      targetRange, sourceCells, sourceCenter,
-					      Multipole, levelRange);
   double dt = get_time() - t0;
-  float flops = (interactions[0] * 20 + interactions[2] * 2 * pow(P,3)) * numBodies / dt / 1e12;
-  fprintf(stdout,"--- Total runtime ----------------\n");
-  fprintf(stdout,"Total FMM            : %.7f s (%.7f TFlops)\n",dt,flops);
   const int numTarget = min(512,numBodies); // Number of threads per block will be set to this value
   const int numBlock = min(128,(numBodies-1)/numTarget+1);
   t0 = get_time();
   traversal.direct(numTarget, numBlock, images, eps, cycle, bodyPos2, bodyAcc2);
   dt = get_time() - t0;
-  flops = 35. * numTarget * numBodies * powf(2*images+1,3) / dt / 1e12;
-  fprintf(stdout,"Total Direct         : %.7f s (%.7f TFlops)\n",dt,flops);
   bodyAcc.d2h();
   bodyAcc2.d2h();
-
   for (int i=0; i<numTarget; i++) {
     fvec4 bodyAcc = bodyAcc2[i];
     for (int j=1; j<numBlock; j++) {
@@ -82,7 +82,6 @@ int main(int argc, char ** argv) {
     }
     bodyAcc2[i] = bodyAcc;
   }
-
   double diffp = 0, diffa = 0;
   double normp = 0, norma = 0;
   for (int i=0; i<numTarget; i++) {
@@ -102,8 +101,5 @@ int main(int argc, char ** argv) {
   fprintf(stdout,"Bodies               : %d\n",numBodies);
   fprintf(stdout,"Cells                : %d\n",numSources);
   fprintf(stdout,"Tree depth           : %d\n",numLevels);
-  fprintf(stdout,"--- Traversal stats --------------\n");
-  fprintf(stdout,"P2P mean list length : %d (max %d)\n", int(interactions[0]), int(interactions[1]));
-  fprintf(stdout,"M2P mean list length : %d (max %d)\n", int(interactions[2]), int(interactions[3]));
   return 0;
 }

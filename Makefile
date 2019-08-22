@@ -1,7 +1,7 @@
 .SUFFIXES: .cu
 
 NVCC = nvcc -g -use_fast_math -arch=sm_52 -rdc=true
-LFLAGS = -lcudadevrt
+LFLAGS = -lcudadevrt -Iinclude/
 LFLAGS += -DMASS # Use all positive sources
 
 SRC = thrust.cu serial.cu
