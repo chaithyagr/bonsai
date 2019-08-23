@@ -6,11 +6,6 @@
 #define TYPE float
 namespace py = pybind11;
 
-void test()
-{
-    //This function will be used to compare runs inside python and C++
-    test_all();
-}
 py::array_t<TYPE, py::array::c_style | py::array::forcecast> bonsai_pybind(py::size_t num_points,
  py::array_t<TYPE, py::array::c_style | py::array::forcecast> locations,
  py::array_t<TYPE, py::array::c_style | py::array::forcecast> weights, float theta, bool dodebug)
