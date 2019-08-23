@@ -14,7 +14,7 @@
 #include "logger.h"
 #include "vec.h"
 
-const int P = 5;
+const int P = 4;
 #define WARP_PER_CELL 0
 const int NTERM = P*(P+1)*(P+2)/6;
 const int NVEC4 = (NTERM-1)/4+1;

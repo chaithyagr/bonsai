@@ -120,7 +120,7 @@ int get_pots(int numBodies, float theta, float *pots, float *points, float *weig
 {
     const int images = 0;
     const float eps = 0.05;
-    const int ncrit = 16384;
+    const int ncrit = 64;
     const float cycle = 2 * M_PI;
     const Dataset data(numBodies, points, weights);
 
