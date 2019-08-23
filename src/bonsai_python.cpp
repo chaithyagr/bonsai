@@ -2,7 +2,7 @@
 #include <pybind11/numpy.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "serial.h"
+#include "serial.hpp"
 #define TYPE float
 namespace py = pybind11;
 
