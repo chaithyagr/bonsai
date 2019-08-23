@@ -1,4 +1,4 @@
-#include "serial.h"
+#include "serial.hpp"
 int main()
 {
     //This function will be used to compare runs inside python and C++
