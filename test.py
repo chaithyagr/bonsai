@@ -1,7 +1,6 @@
-import fmm
+import fmm_gpu
 import numpy as np
 import matplotlib.pyplot as plt
-import pbfmm3d
 from mpl_toolkits.mplot3d import Axes3D
 
 def direct_compute(shot, weight):
@@ -21,7 +20,7 @@ def direct_compute(shot, weight):
     return np.asarray(potentials)
 
 
-num_points = 1633
+num_points = 1633000
 num_iter = 1
 num_terms = 10
 bin_size = 200
@@ -32,14 +31,13 @@ for i in np.arange(num_iter):
     A = np.random.uniform(0, 1, 3 * num_points)
     A_shot = np.reshape(A,(num_points,3), order='F')
     B = np.random.uniform(0, 1, num_points)
-    C = fmm.bonsai(num_points, A, B, 0.75, dodebug)
-    #C_act = pbfmm3d.single(A_shot.T, B.T, 4, 5, 0.01)
-    #C_act = direct_compute(np.reshape(A,(num_points,3),order='F'),B)
+    C = fmm_gpu.bonsai(num_points, A, B, 0.00005, dodebug)
     C = -C
 
-plt.plot(C)
-fig = plt.figure()
-ax = Axes3D(fig)
-ax.scatter(A_shot[:,0], A_shot[:, 1], A_shot[:,2])
-plt.show()
-print(str(C))
+if(dodebug):
+    plt.plot(C)
+    fig = plt.figure()
+    ax = Axes3D(fig)
+    ax.scatter(A_shot[:,0], A_shot[:, 1], A_shot[:,2])
+    plt.show()
+print("Output " + str(C))
