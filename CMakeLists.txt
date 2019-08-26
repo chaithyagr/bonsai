@@ -10,9 +10,9 @@ find_package(CUDA REQUIRED)
 add_subdirectory(pybind11)
 
 FILE(GLOB sources src/*.cu)
-set(CUDA_ARCH   -gencode arch=compute_35,code=sm_35
-                -gencode arch=compute_50,code=sm_50
-                -gencode arch=compute_50,code=compute_50 )
+set(CUDA_ARCH  -gencode arch=compute_35,code=sm_35
+               -gencode arch=compute_50,code=sm_50
+               -gencode arch=compute_50,code=compute_50 )
 
 include_directories(${CUDA_INCLUDE_DIRS} ${CUDA_ROOT_DIR}/samples/common/inc)
 include_directories(include/)
