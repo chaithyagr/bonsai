@@ -10,11 +10,14 @@ find_package(CUDA REQUIRED)
 add_subdirectory(pybind11)
 
 FILE(GLOB sources src/*.cu)
+set(CUDA_ARCH   -gencode arch=compute_35,code=sm_35
+                -gencode arch=compute_50,code=sm_50
+                -gencode arch=compute_50,code=compute_50 )
 
 include_directories(${CUDA_INCLUDE_DIRS} ${CUDA_ROOT_DIR}/samples/common/inc)
 include_directories(include/)
 set(CMAKE_CXX_FLAGS "-std=c++11 -fPIC")
-set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -arch=sm_52 --use_fast_math -rdc=true -g -lcudadevrt -ftz=true)
+set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${CUDA_ARCH} --use_fast_math -rdc=true -g -lcudadevrt -ftz=true)
 link_directories(${CUDA_TOOLKIT_ROOT_DIR}/lib64)
 cuda_add_library(serial ${sources})
 pybind11_add_module(fmm_gpu src/bonsai_python.cpp)
